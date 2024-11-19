@@ -1,7 +1,10 @@
 export function Footer() {
   return (
-    <footer className="bg-secondary text-secondary-foreground p-4 mt-auto">
-      <div className="container mx-auto text-center space-y-2 md:space-y-0 md:flex md:items-center md:justify-between">
+    <footer
+      draggable={false}
+      className="mt-auto select-none bg-secondary p-4 text-secondary-foreground"
+    >
+      <div className="container mx-auto space-y-2 text-center md:flex md:items-center md:justify-between md:space-y-0">
         <p className="text-sm">
           &copy; {new Date().getFullYear()} Meu amigo é...
         </p>
