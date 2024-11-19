@@ -3,5 +3,7 @@
     "baseUrl": "src",
     "jsx": "react-jsx",
     "esModuleInterop": true,
+    "moduleResolution": "node",
+    "typeRoots": ["node_modules/@types", "src/types"]
   }
 }
