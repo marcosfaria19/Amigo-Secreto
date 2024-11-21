@@ -1,0 +1,16 @@
+3. Frontend
+[ ] Configurar autenticação:
+    Tela de login para Google OAuth2 ou e-mail.
+[ ]  Fluxo de criação de sorteio:
+    Formulário para nome do organizador, participantes e descrição.
+    Exibir link personalizado após criar.
+[ ]  Fluxo para participantes:
+    Tela para acessar sorteio via link, selecionar nome e autenticar.
+[ ] Exibição dos resultados:
+    Tela com detalhes do sorteio e resultado individual.
+[ ] UI/UX aprimorada:
+    Adicionar animações (como já está implementado com Framer Motion) e responsividade.
+
+4. Integração
+[ ] Conectar frontend e backend via API REST.
+[ ] Implementar feedback visual e tratamento de erros.

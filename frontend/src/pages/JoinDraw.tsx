@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
@@ -15,13 +15,57 @@ import Container from "components/Container";
 export default function JoinDraw() {
   const [selectedName, setSelectedName] = useState("");
   const [email, setEmail] = useState("");
+  const [participants, setParticipants] = useState<string[]>([]);
 
-  // This would be fetched from the server based on the draw ID
-  const participants = ["Alice", "Bob", "Charlie", "David", "Eve"];
+  useEffect(() => {
+    // Fetch participants for the draw from the backend (assuming you have an API for this)
+    const fetchParticipants = async () => {
+      const response = await fetch("/api/draw/participants", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`, // Add token from localStorage or cookies
+        },
+      });
 
-  const handleJoin = () => {
-    // Here you would handle the join logic, potentially with Google authentication
-    console.log("Joining draw with", selectedName, email);
+      if (response.ok) {
+        const data = await response.json();
+        setParticipants(data.participants); // Assume the response contains a list of participants
+      } else {
+        // Handle error (maybe show an error message to the user)
+        console.error("Failed to fetch participants");
+      }
+    };
+
+    fetchParticipants();
+  }, []);
+
+  const handleJoin = async () => {
+    // Check if the user has selected a name and entered an email
+    if (!selectedName || !email) {
+      alert("Por favor, selecione seu nome e insira seu email.");
+      return;
+    }
+
+    // Send request to join the draw
+    const response = await fetch("/api/draw/join", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`, // Add token for authentication
+      },
+      body: JSON.stringify({
+        name: selectedName,
+        email: email,
+      }),
+    });
+
+    if (response.ok) {
+      // Logic for when the user successfully joins
+      console.log("Você entrou no sorteio com sucesso");
+    } else {
+      // Handle error (show error message to the user)
+      console.error("Erro ao entrar no sorteio");
+    }
   };
 
   return (

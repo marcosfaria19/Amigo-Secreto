@@ -44,6 +44,7 @@ export default function CreateDraw() {
   const [newParticipant, setNewParticipant] = useState("");
   const [description, setDescription] = useState("");
   const [drawId, setDrawId] = useState<string | null>(null);
+  const [drawLink, setDrawLink] = useState<string | null>(null); // Adicionando o estado para o link
 
   const handleAddParticipant = () => {
     if (
@@ -68,9 +69,23 @@ export default function CreateDraw() {
   };
 
   const handleCreateDraw = async () => {
-    // Simulate API call
-    const id = Math.random().toString(36).substr(2, 9);
-    setDrawId(id);
+    // Criar o sorteio no backend
+    const response = await fetch("/api/draws", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+      },
+      body: JSON.stringify({
+        organizerName,
+        participants,
+        description,
+      }),
+    });
+
+    const data = await response.json();
+    setDrawId(data.id); // Salvar o ID do sorteio retornado do backend
+    setDrawLink(`${window.location.origin}/draw/${data.id}`); // Salvar o link gerado
     confetti({
       particleCount: 100,
       spread: 70,
@@ -112,7 +127,9 @@ export default function CreateDraw() {
                 {step.icon}
               </motion.div>
               <div
-                className={`mt-2 h-1 w-24 ${index < currentStep + 1 ? "bg-blue-500" : "bg-gray-200"}`}
+                className={`mt-2 h-1 w-24 ${
+                  index < currentStep + 1 ? "bg-blue-500" : "bg-gray-200"
+                }`}
               />
             </div>
           ))}
@@ -197,9 +214,11 @@ export default function CreateDraw() {
                   Sorteio Criado!
                 </h3>
                 <p className="mb-4 text-gray-600">
-                  Você receberá um e-mail em <strong>{organizerName}</strong>{" "}
-                  para confirmar a celebração e enviar convites.
+                  O sorteio foi criado com sucesso. Compartilhe o link com os
+                  participantes:
                 </p>
+                <p className="text-blue-600">{drawLink}</p>{" "}
+                {/* Exibindo o link */}
                 <Button variant="outline" className="mt-2">
                   Reenviar E-mail
                 </Button>
