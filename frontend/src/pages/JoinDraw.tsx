@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "components/ui/select";
 import { Gift, Mail } from "lucide-react";
-import Container from "./Container";
+import Container from "components/Container";
 
 export default function JoinDraw() {
   const [selectedName, setSelectedName] = useState("");

@@ -37,7 +37,7 @@ const steps: Step[] = [
   },
 ];
 
-export default function Component() {
+export default function CreateDraw() {
   const [currentStep, setCurrentStep] = useState(0);
   const [organizerName, setOrganizerName] = useState("");
   const [participants, setParticipants] = useState<string[]>([]);

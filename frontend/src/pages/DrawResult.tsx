@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "components/ui/button";
 import { Gift, User, MessageCircle } from "lucide-react";
 import confetti from "canvas-confetti";
-import Container from "./Container";
+import Container from "../components/Container";
 
 export default function DrawResult() {
   const [drawnName, setDrawnName] = useState<string | null>(null);
