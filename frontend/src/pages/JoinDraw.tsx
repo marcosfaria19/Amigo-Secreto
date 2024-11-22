@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
@@ -11,60 +12,67 @@ import {
 } from "components/ui/select";
 import { Gift, Mail } from "lucide-react";
 import Container from "components/Container";
+import axiosInstance from "services/axios"; // Your axios instance
 
 export default function JoinDraw() {
+  const { link } = useParams(); // Getting the link from URL
   const [selectedName, setSelectedName] = useState("");
   const [email, setEmail] = useState("");
   const [participants, setParticipants] = useState<string[]>([]);
 
+  interface ParticipantsResponse {
+    participants: { name: string }[]; // Assuming participants is an array of objects with 'name' property
+  }
+
   useEffect(() => {
-    // Fetch participants for the draw from the backend (assuming you have an API for this)
-    const fetchParticipants = async () => {
-      const response = await fetch("/api/draw/participants", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`, // Add token from localStorage or cookies
-        },
-      });
+    // Check if link exists, then fetch participants
+    if (link) {
+      const fetchParticipants = async () => {
+        try {
+          const response = await axiosInstance.get<ParticipantsResponse>(
+            `/api/draws/${link}`,
+          ); // Request with the link
 
-      if (response.ok) {
-        const data = await response.json();
-        setParticipants(data.participants); // Assume the response contains a list of participants
-      } else {
-        // Handle error (maybe show an error message to the user)
-        console.error("Failed to fetch participants");
-      }
-    };
+          if (response.data && response.data.participants) {
+            // Ensure that participants exist in the response
+            setParticipants(
+              response.data.participants.map((p) => p.name), // Extract names from participants array
+            );
+          } else {
+            console.error("No participants found in response");
+          }
+        } catch (error) {
+          console.error("Failed to fetch participants", error);
+        }
+      };
 
-    fetchParticipants();
-  }, []);
+      fetchParticipants();
+    }
+  }, [link]); // Fetch participants when link changes
 
   const handleJoin = async () => {
-    // Check if the user has selected a name and entered an email
+    // Ensure both name and email are provided
     if (!selectedName || !email) {
       alert("Por favor, selecione seu nome e insira seu email.");
       return;
     }
 
     // Send request to join the draw
-    const response = await fetch("/api/draw/join", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`, // Add token for authentication
-      },
-      body: JSON.stringify({
-        name: selectedName,
-        email: email,
-      }),
-    });
+    try {
+      const response = await axiosInstance.post<ParticipantsResponse>(
+        `/api/draws/${link}/participate`,
+        {
+          name: selectedName,
+          email: email,
+          link: link,
+        },
+      );
 
-    if (response.ok) {
-      // Logic for when the user successfully joins
-      console.log("Você entrou no sorteio com sucesso");
-    } else {
-      // Handle error (show error message to the user)
-      console.error("Erro ao entrar no sorteio");
+      if (response.status === 200) {
+        console.log("Você entrou no sorteio com sucesso");
+      }
+    } catch (error) {
+      console.error("Erro ao entrar no sorteio", error);
     }
   };
 

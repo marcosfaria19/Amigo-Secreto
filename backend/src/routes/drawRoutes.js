@@ -46,10 +46,10 @@ router.post("/:id/draw", async (req, res) => {
 });
 
 // Participar do sorteio
-router.post("/:id/participate", async (req, res) => {
+router.post("/:link/participate", async (req, res) => {
   try {
     const { name, email } = req.body;
-    const draw = await Draw.findOne({ link: req.params.id });
+    const draw = await Draw.findOne({ link: req.params.link }); // Use link ao invés de id
     if (!draw) return res.status(404).json({ error: "Draw not found" });
 
     const participant = draw.participants.find((p) => p.email === email);
@@ -68,11 +68,15 @@ router.post("/:id/participate", async (req, res) => {
   }
 });
 
-// Listar sorteios do organizador
-router.get("/", async (req, res) => {
+
+// Visualizar sorteio por link
+router.get("/:link", async (req, res) => { 
   try {
-    const draws = await Draw.find({ organizerName: req.query.organizer });
-    res.json(draws);
+    const draw = await Draw.findOne({ link: req.params.link }); // Busca usando o link
+    if (!draw) {
+      return res.status(404).json({ message: "Sorteio não encontrado" });
+    }
+    res.json(draw); // Retorna o sorteio encontrado
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
