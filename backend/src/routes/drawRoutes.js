@@ -1,6 +1,6 @@
 const express = require("express");
 const Draw = require("../models/Draw");
-const { performDraw } = require("../utils/performDraw");
+const {performDraw} = require("../utils/performDraw")
 
 const router = express.Router();
 

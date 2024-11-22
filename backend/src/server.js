@@ -10,13 +10,15 @@ const app = express();
 
 // Middlewares
 app.use(express.json());
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cors());
 
 // Database Connection
 mongoose
   .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    tlsInsecure:true,
+    tls:true,
   })
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.error("Database connection error:", err));

@@ -12,6 +12,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import axiosInstance from "services/axios";
 
 interface Step {
   title: string;
@@ -44,7 +45,7 @@ export default function CreateDraw() {
   const [newParticipant, setNewParticipant] = useState("");
   const [description, setDescription] = useState("");
   const [drawId, setDrawId] = useState<string | null>(null);
-  const [drawLink, setDrawLink] = useState<string | null>(null); // Adicionando o estado para o link
+  const [drawLink, setDrawLink] = useState<string | null>(null);
 
   const handleAddParticipant = () => {
     if (
@@ -68,29 +69,29 @@ export default function CreateDraw() {
     }
   };
 
+  interface DrawResponse {
+    id: string;
+  }
+
   const handleCreateDraw = async () => {
-    // Criar o sorteio no backend
-    const response = await fetch("/api/draws", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      },
-      body: JSON.stringify({
+    try {
+      const response = await axiosInstance.post<DrawResponse>("/api/draws", {
         organizerName,
         participants,
         description,
-      }),
-    });
+      });
 
-    const data = await response.json();
-    setDrawId(data.id); // Salvar o ID do sorteio retornado do backend
-    setDrawLink(`${window.location.origin}/draw/${data.id}`); // Salvar o link gerado
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-    });
+      const data = response.data;
+      setDrawId(data.id);
+      setDrawLink(`${window.location.origin}/draw/${data.id}`);
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+    } catch (error) {
+      console.error("Erro ao criar o sorteio:", error);
+    }
   };
 
   const isStepValid = () => {
