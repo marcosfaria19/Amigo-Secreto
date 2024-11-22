@@ -70,20 +70,24 @@ export default function CreateDraw() {
   };
 
   interface DrawResponse {
-    id: string;
+    link: string;
   }
 
   const handleCreateDraw = async () => {
     try {
       const response = await axiosInstance.post<DrawResponse>("/api/draws", {
         organizerName,
-        participants,
+        organizerEmail: `${organizerName.toLowerCase().replace(/\s+/g, ".")}@example.com`,
+        participants: participants.map((name) => ({
+          name,
+          email: `${name.toLowerCase().replace(/\s+/g, ".")}@example.com`,
+        })),
         description,
       });
 
       const data = response.data;
-      setDrawId(data.id);
-      setDrawLink(`${window.location.origin}/draw/${data.id}`);
+      setDrawId(data.link);
+      setDrawLink(`${window.location.origin}/draw/${data.link}`);
       confetti({
         particleCount: 100,
         spread: 70,
@@ -218,8 +222,7 @@ export default function CreateDraw() {
                   O sorteio foi criado com sucesso. Compartilhe o link com os
                   participantes:
                 </p>
-                <p className="text-blue-600">{drawLink}</p>{" "}
-                {/* Exibindo o link */}
+                <p className="text-blue-600">{drawLink}</p>
                 <Button variant="outline" className="mt-2">
                   Reenviar E-mail
                 </Button>

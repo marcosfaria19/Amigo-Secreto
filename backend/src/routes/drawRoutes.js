@@ -1,17 +1,18 @@
 const express = require("express");
 const Draw = require("../models/Draw");
-const {performDraw} = require("../utils/performDraw")
+const { performDraw } = require("../utils/performDraw");
 
 const router = express.Router();
 
 // Criar sorteio
+
 router.post("/", async (req, res) => {
   try {
-    const { organizer, organizerName, description, participants } = req.body;
+    const { organizerEmail, organizerName, description, participants } = req.body;
     const link = Math.random().toString(36).substring(2, 15);
 
     const draw = new Draw({
-      organizer,
+      organizerEmail,  // Usando o email do organizador
       organizerName,
       description,
       participants,
@@ -23,6 +24,7 @@ router.post("/", async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
+
 
 // Realizar sorteio
 router.post("/:id/draw", async (req, res) => {
@@ -69,7 +71,7 @@ router.post("/:id/participate", async (req, res) => {
 // Listar sorteios do organizador
 router.get("/", async (req, res) => {
   try {
-    const draws = await Draw.find({ organizer: req.query.organizer });
+    const draws = await Draw.find({ organizerName: req.query.organizer });
     res.json(draws);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -88,3 +90,4 @@ router.get("/:id/results", async (req, res) => {
 });
 
 module.exports = router;
+

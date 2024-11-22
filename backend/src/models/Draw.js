@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const drawSchema = new mongoose.Schema({
-  organizer: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  organizerEmail: { type: String, required: true },
   organizerName: { type: String, required: true },
   description: { type: String, required: true },
   participants: [{ name: String, email: String, hasJoined: { type: Boolean, default: false } }],
@@ -11,4 +11,5 @@ const drawSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Draw", drawSchema);
+
 
