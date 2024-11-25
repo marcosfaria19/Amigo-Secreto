@@ -10,6 +10,7 @@ import {
   Users,
   MessageCircle,
   Sparkles,
+  Mail,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import axiosInstance from "services/axios";
@@ -23,7 +24,7 @@ interface Step {
 const steps: Step[] = [
   {
     title: "Organize seu Amigo Secreto",
-    subtitle: "Comece informando seu nome",
+    subtitle: "Comece com o seu nome",
     icon: <Gift className="h-8 w-8 text-pink-500" />,
   },
   {
@@ -36,6 +37,11 @@ const steps: Step[] = [
     subtitle: "Adicione uma descrição para o sorteio",
     icon: <MessageCircle className="h-8 w-8 text-green-500" />,
   },
+  {
+    title: "Autenticação",
+    subtitle: "Registre seu email ou entre com o Google",
+    icon: <Mail className="h-8 w-8 text-purple-500" />,
+  },
 ];
 
 export default function CreateDraw() {
@@ -46,6 +52,7 @@ export default function CreateDraw() {
   const [description, setDescription] = useState("");
   const [drawId, setDrawId] = useState<string | null>(null);
   const [drawLink, setDrawLink] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
 
   const handleAddParticipant = () => {
     if (
@@ -58,10 +65,17 @@ export default function CreateDraw() {
   };
 
   const handleRemoveParticipant = (index: number) => {
+    if (index === 0 && participants[0] === organizerName) {
+      return;
+    }
     setParticipants(participants.filter((_, i) => i !== index));
   };
 
   const handleNext = () => {
+    if (currentStep === 0 && organizerName.trim()) {
+      setParticipants([organizerName.trim(), ...participants]);
+    }
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -77,7 +91,7 @@ export default function CreateDraw() {
     try {
       const response = await axiosInstance.post<DrawResponse>("/api/draws", {
         organizerName,
-        organizerEmail: `${organizerName.toLowerCase().replace(/\s+/g, ".")}@example.com`,
+        organizerEmail: email,
         participants: participants.map((name) => ({
           name,
           email: "",
@@ -98,6 +112,11 @@ export default function CreateDraw() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    // Implement Google login logic here
+    console.log("Google login clicked");
+  };
+
   const isStepValid = () => {
     switch (currentStep) {
       case 0:
@@ -106,6 +125,8 @@ export default function CreateDraw() {
         return participants.length >= 3;
       case 2:
         return description.trim().length >= 10;
+      case 3:
+        return email.includes("@") && email.includes(".");
       default:
         return false;
     }
@@ -156,7 +177,7 @@ export default function CreateDraw() {
 
             {currentStep === 0 && (
               <Input
-                placeholder="Digite seu nome"
+                placeholder="Qual é o seu nome?"
                 value={organizerName}
                 onChange={(e) => setOrganizerName(e.target.value)}
                 className="text-lg"
@@ -190,8 +211,11 @@ export default function CreateDraw() {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleRemoveParticipant(index)}
+                        disabled={index === 0 && participant === organizerName}
                       >
-                        <X className="h-4 w-4" />
+                        <X
+                          className={`h-4 w-4 ${index === 0 && participant === organizerName ? "invisible" : "visible"}`}
+                        />
                       </Button>
                     </motion.li>
                   ))}
@@ -206,6 +230,25 @@ export default function CreateDraw() {
                 onChange={(e) => setDescription(e.target.value)}
                 className="min-h-[150px]"
               />
+            )}
+
+            {currentStep === 3 && (
+              <div className="space-y-4">
+                <Input
+                  type="email"
+                  placeholder="Seu email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="text-lg"
+                />
+                <Button
+                  onClick={handleGoogleLogin}
+                  className="w-full"
+                  variant="outline"
+                >
+                  Entrar com Google
+                </Button>
+              </div>
             )}
 
             {drawId ? (
