@@ -80,7 +80,7 @@ export default function CreateDraw() {
         organizerEmail: `${organizerName.toLowerCase().replace(/\s+/g, ".")}@example.com`,
         participants: participants.map((name) => ({
           name,
-          email: `${name.toLowerCase().replace(/\s+/g, ".")}@example.com`,
+          email: "",
         })),
         description,
       });

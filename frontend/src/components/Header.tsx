@@ -17,7 +17,7 @@ export function Header() {
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-pink-500">
             <Gift className="h-6 w-6 text-white" />
           </div>
-          <span className="hidden sm:inline">Meu amigo é...</span>
+          <span className="hidden sm:inline">Tirou quem?</span>
         </Link>
 
         <div className="flex items-center">

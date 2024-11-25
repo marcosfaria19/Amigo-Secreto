@@ -12,7 +12,7 @@ router.post("/", async (req, res) => {
     const link = Math.random().toString(36).substring(2, 15);
 
     const draw = new Draw({
-      organizerEmail,  // Usando o email do organizador
+      organizerEmail,  
       organizerName,
       description,
       participants,

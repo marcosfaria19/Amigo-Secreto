@@ -12,32 +12,28 @@ import {
 } from "components/ui/select";
 import { Gift, Mail } from "lucide-react";
 import Container from "components/Container";
-import axiosInstance from "services/axios"; // Your axios instance
+import axiosInstance from "services/axios";
 
 export default function JoinDraw() {
-  const { link } = useParams(); // Getting the link from URL
+  const { link } = useParams();
   const [selectedName, setSelectedName] = useState("");
   const [email, setEmail] = useState("");
   const [participants, setParticipants] = useState<string[]>([]);
 
   interface ParticipantsResponse {
-    participants: { name: string }[]; // Assuming participants is an array of objects with 'name' property
+    participants: { name: string }[];
   }
 
   useEffect(() => {
-    // Check if link exists, then fetch participants
     if (link) {
       const fetchParticipants = async () => {
         try {
           const response = await axiosInstance.get<ParticipantsResponse>(
             `/api/draws/${link}`,
-          ); // Request with the link
+          );
 
           if (response.data && response.data.participants) {
-            // Ensure that participants exist in the response
-            setParticipants(
-              response.data.participants.map((p) => p.name), // Extract names from participants array
-            );
+            setParticipants(response.data.participants.map((p) => p.name));
           } else {
             console.error("No participants found in response");
           }
@@ -48,16 +44,14 @@ export default function JoinDraw() {
 
       fetchParticipants();
     }
-  }, [link]); // Fetch participants when link changes
+  }, [link]);
 
   const handleJoin = async () => {
-    // Ensure both name and email are provided
     if (!selectedName || !email) {
       alert("Por favor, selecione seu nome e insira seu email.");
       return;
     }
 
-    // Send request to join the draw
     try {
       const response = await axiosInstance.post<ParticipantsResponse>(
         `/api/draws/${link}/participate`,
