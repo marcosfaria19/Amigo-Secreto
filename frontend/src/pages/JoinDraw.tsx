@@ -10,9 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
-import { Gift, Mail } from "lucide-react";
+import { Gift } from "lucide-react";
 import Container from "components/Container";
 import axiosInstance from "services/axios";
+import { FcGoogle } from "react-icons/fc";
 
 export default function JoinDraw() {
   const { link } = useParams();
@@ -122,7 +123,7 @@ export default function JoinDraw() {
           </form>
           <div className="mt-4">
             <Button variant="outline" className="w-full">
-              <Mail className="mr-2 h-4 w-4" />
+              <FcGoogle />
               Entrar com Google
             </Button>
           </div>

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import axiosInstance from "services/axios";
+import { FcGoogle } from "react-icons/fc";
 
 interface Step {
   title: string;
@@ -136,15 +137,15 @@ export default function CreateDraw() {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 p-4">
       <main className="mx-auto max-w-4xl">
         <motion.div
-          className="mb-8 flex justify-center"
+          className="mb-8 flex flex-wrap justify-center gap-4"
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
           {steps.map((step, index) => (
-            <div key={index} className="mx-4 flex flex-col items-center">
+            <div key={index} className="flex flex-col items-center">
               <motion.div
-                className={`flex h-16 w-16 items-center justify-center rounded-full ${
+                className={`flex h-12 w-12 items-center justify-center rounded-full sm:h-16 sm:w-16 ${
                   index <= currentStep ? "bg-white shadow-lg" : "bg-gray-200"
                 }`}
                 whileHover={{ scale: 1.1 }}
@@ -153,7 +154,7 @@ export default function CreateDraw() {
                 {step.icon}
               </motion.div>
               <div
-                className={`mt-2 h-1 w-24 ${
+                className={`mt-2 h-1 w-16 sm:w-24 ${
                   index < currentStep + 1 ? "bg-blue-500" : "bg-gray-200"
                 }`}
               />
@@ -168,25 +169,27 @@ export default function CreateDraw() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="rounded-2xl bg-white p-8 shadow-xl"
+            className="rounded-2xl bg-white p-4 shadow-xl sm:p-8"
           >
-            <h2 className="mb-2 text-3xl font-bold text-gray-800">
+            <h2 className="mb-2 text-2xl font-bold text-gray-800 sm:text-3xl">
               {steps[currentStep].title}
             </h2>
-            <p className="mb-6 text-gray-600">{steps[currentStep].subtitle}</p>
+            <p className="mb-6 text-sm text-gray-600 sm:text-base">
+              {steps[currentStep].subtitle}
+            </p>
 
             {currentStep === 0 && (
               <Input
                 placeholder="Qual é o seu nome?"
                 value={organizerName}
                 onChange={(e) => setOrganizerName(e.target.value)}
-                className="text-lg"
+                className="text-base sm:text-lg"
               />
             )}
 
             {currentStep === 1 && (
               <div className="space-y-4">
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Input
                     placeholder="Nome do participante"
                     value={newParticipant}
@@ -195,7 +198,12 @@ export default function CreateDraw() {
                       e.key === "Enter" && handleAddParticipant()
                     }
                   />
-                  <Button onClick={handleAddParticipant}>Adicionar</Button>
+                  <Button
+                    onClick={handleAddParticipant}
+                    className="w-full sm:w-auto"
+                  >
+                    Adicionar
+                  </Button>
                 </div>
                 <ul className="max-h-60 space-y-2 overflow-y-auto">
                   {participants.map((participant, index) => (
@@ -232,40 +240,43 @@ export default function CreateDraw() {
               />
             )}
 
-            {currentStep === 3 && (
+            {currentStep === 3 && !drawId && (
               <div className="space-y-4">
                 <Input
                   type="email"
                   placeholder="Seu email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="text-lg"
+                  className="text-base sm:text-lg"
                 />
                 <Button
                   onClick={handleGoogleLogin}
                   className="w-full"
                   variant="outline"
                 >
+                  <FcGoogle className="mr-2 h-4 w-4" />
                   Entrar com Google
                 </Button>
               </div>
             )}
 
-            {drawId ? (
+            {currentStep === 3 && drawId ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="mt-6 rounded-xl bg-gradient-to-r from-pink-100 to-blue-100 p-6 text-center"
+                className="mt-6 rounded-xl bg-gradient-to-r from-pink-100 to-blue-100 p-4 text-center sm:p-6"
               >
-                <Sparkles className="mx-auto mb-4 h-12 w-12 text-yellow-500" />
-                <h3 className="mb-2 text-2xl font-bold text-gray-800">
+                <Sparkles className="mx-auto mb-4 h-10 w-10 text-yellow-500 sm:h-12 sm:w-12" />
+                <h3 className="mb-2 text-xl font-bold text-gray-800 sm:text-2xl">
                   Sorteio Criado!
                 </h3>
-                <p className="mb-4 text-gray-600">
+                <p className="mb-4 text-sm text-gray-600 sm:text-base">
                   O sorteio foi criado com sucesso. Compartilhe o link com os
                   participantes:
                 </p>
-                <p className="text-blue-600">{drawLink}</p>
+                <p className="break-all text-sm text-blue-600 sm:text-base">
+                  {drawLink}
+                </p>
                 <Button variant="outline" className="mt-2">
                   Reenviar E-mail
                 </Button>
