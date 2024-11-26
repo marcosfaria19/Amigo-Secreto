@@ -1,41 +1,57 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Gift, Mail } from "lucide-react";
+import axiosInstance from "services/axios";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "components/ui/card";
 import { Button } from "components/ui/button";
-import { Gift, User, MessageCircle } from "lucide-react";
-import confetti from "canvas-confetti";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Badge } from "components/ui/badge";
+import Container from "components/Container";
+
+interface Result {
+  giftedPerson: string;
+  message: string;
+}
 
 export default function DrawResult() {
-  const [drawnName, setDrawnName] = useState<string | null>(null);
-  const [isRevealing, setIsRevealing] = useState(false);
+  const { drawId, userResult } = useParams();
+  const [result, setResult] = useState<Result | null>(null);
 
-  // This would be fetched from the server based on the draw ID
-  const drawData = {
-    description: "Nosso amigo secreto de fim de ano! Valor máximo: R$ 100",
-    participants: ["Alice", "Bob", "Charlie", "David", "Eve"],
-  };
+  useEffect(() => {
+    const fetchResult = async () => {
+      try {
+        const response = await axiosInstance.get<Result>(
+          `/api/draws/${drawId}/results/${userResult}`,
+        );
+        setResult(response.data);
+      } catch (error) {
+        console.error("Failed to fetch draw result", error);
+      }
+    };
 
-  const revealFriend = () => {
-    setIsRevealing(true);
-    setTimeout(() => {
-      const randomName =
-        drawData.participants[
-          Math.floor(Math.random() * drawData.participants.length)
-        ];
-      setDrawnName(randomName);
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-      });
-      setIsRevealing(false);
-    }, 3000);
+    fetchResult();
+  }, [drawId, userResult]);
+
+  const handleResendEmail = async () => {
+    try {
+      await axiosInstance.post(
+        `/api/draws/${drawId}/resend-email/${userResult}`,
+      );
+      alert("Email reenviado com sucesso!");
+    } catch (error) {
+      console.error("Failed to resend email", error);
+      alert("Falha ao reenviar o email. Por favor, tente novamente.");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-pink-100 via-violet-100 to-blue-100 px-4 py-10">
-      <div className="mx-auto max-w-2xl">
+    <Container className="bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-pink-100 via-violet-100 to-blue-100 px-4 py-12">
+      <div className="mx-auto max-w-md">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -43,92 +59,47 @@ export default function DrawResult() {
         >
           <Card className="overflow-hidden border-none bg-white/80 backdrop-blur-sm">
             <CardHeader className="space-y-1 pb-4">
-              <CardTitle className="text-center text-3xl font-bold">
-                Seu Amigo Secreto
+              <div className="flex justify-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
+                  <Gift className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <CardTitle className="text-center text-2xl font-bold">
+                Resultado do Sorteio
               </CardTitle>
+              <CardDescription className="text-center">
+                Descubra quem você vai presentear!
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="rounded-lg bg-gray-50 p-4">
-                <div className="flex items-center">
-                  <MessageCircle className="mr-2 h-5 w-5 text-purple-500" />
-                  <h2 className="text-lg font-semibold text-gray-700">
-                    Descrição do Grupo
-                  </h2>
-                </div>
-                <p className="mt-2 text-gray-600">{drawData.description}</p>
-              </div>
-              <div>
-                <div className="flex items-center">
-                  <User className="mr-2 h-5 w-5 text-purple-500" />
-                  <h2 className="text-lg font-semibold text-gray-700">
-                    Participantes
-                  </h2>
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {drawData.participants.map((participant) => (
-                    <Badge
-                      key={participant}
-                      variant="secondary"
-                      className="text-sm"
-                    >
-                      {participant}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              <AnimatePresence>
-                {drawnName ? (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    className="rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 p-6 text-center text-white"
+            <CardContent className="space-y-4">
+              {result ? (
+                <>
+                  <p className="text-center text-lg font-semibold">
+                    Você vai presentear:
+                  </p>
+                  <p className="text-center text-2xl font-bold text-purple-600">
+                    {result.giftedPerson}
+                  </p>
+                  <div className="mt-4 rounded-lg bg-gray-100 p-4">
+                    <p className="text-center text-sm italic">
+                      "{result.message}"
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleResendEmail}
+                    className="mt-4 w-full gap-2"
                   >
-                    <Gift className="mx-auto mb-2 h-12 w-12" />
-                    <h3 className="text-xl font-semibold">
-                      Seu amigo secreto é:
-                    </h3>
-                    <p className="mt-2 text-3xl font-bold">{drawnName}</p>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="text-center"
-                  >
-                    <Button
-                      onClick={revealFriend}
-                      disabled={isRevealing}
-                      className="h-14 gap-2"
-                      size="lg"
-                    >
-                      {isRevealing ? (
-                        <span className="flex items-center">
-                          <motion.span
-                            animate={{ rotate: 360 }}
-                            transition={{
-                              duration: 2,
-                              repeat: Infinity,
-                              ease: "linear",
-                            }}
-                            className="mr-2"
-                          >
-                            <Gift className="h-5 w-5" />
-                          </motion.span>
-                          Sorteando...
-                        </span>
-                      ) : (
-                        "Revelar Meu Amigo Secreto"
-                      )}
-                    </Button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    <Mail className="h-4 w-4" />
+                    Reenviar por Email
+                  </Button>
+                </>
+              ) : (
+                <p className="text-center">Carregando resultado...</p>
+              )}
             </CardContent>
           </Card>
         </motion.div>
       </div>
-    </div>
+    </Container>
   );
 }

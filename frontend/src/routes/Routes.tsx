@@ -8,7 +8,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/home" element={<CreateDraw />} />
       <Route path="/draw/:link" element={<JoinDraw />} />
-      <Route path="/result" element={<DrawResult />} />
+      <Route path="/draw/:drawId/:userResult" element={<DrawResult />} />
       <Route path="*" element={<Navigate to="/home" />} />
     </Routes>
   );

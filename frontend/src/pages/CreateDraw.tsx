@@ -290,7 +290,7 @@ export default function CreateDraw() {
                                   <p className="text-sm font-medium sm:text-base">
                                     {participant}
                                   </p>
-                                  <p className="text-xs text-gray-500 sm:text-sm">
+                                  <p className="text-xs text-muted-foreground sm:text-sm">
                                     Participante {index + 1}
                                   </p>
                                 </div>
@@ -374,24 +374,24 @@ export default function CreateDraw() {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 p-6 text-center text-white sm:p-8"
+                    className="relative overflow-hidden rounded-xl bg-gradient-to-br from-pink-100 via-violet-100 to-blue-100 p-6 text-center text-primary/80 sm:p-8"
                   >
                     <div className="absolute inset-0 opacity-10" />
                     <PartyPopper className="mx-auto mb-4 h-12 w-12 sm:h-16 sm:w-16" />
                     <h3 className="mb-2 text-2xl font-bold sm:text-3xl">
                       Sorteio Criado!
                     </h3>
-                    <p className="mb-6 text-base text-white/90 sm:text-lg">
-                      Compartilhe o link com todos os participantes:
+                    <p className="mb-6 text-base text-muted-foreground sm:text-lg">
+                      Compartilhe o link abaixo com todos os participantes:
                     </p>
-                    <div className="relative mb-6 overflow-hidden rounded-lg bg-white/10 p-4 backdrop-blur-sm">
+                    <div className="relative mb-6 overflow-hidden rounded-lg bg-background/50 p-4 backdrop-blur-sm">
                       <p className="break-all text-sm font-medium sm:text-lg">
                         {drawLink}
                       </p>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute right-2 top-2 z-50 text-white hover:bg-white/20 sm:top-3"
+                        className="absolute right-2 top-2 z-50 text-foreground hover:opacity-60 sm:top-3"
                         onClick={() => {
                           navigator.clipboard.writeText(drawLink || "");
                           // You might want to add a toast notification here
@@ -399,12 +399,12 @@ export default function CreateDraw() {
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
-                      <Snowflake className="absolute -right-4 -top-4 h-16 w-16 rotate-12 text-white/10" />
+                      <Snowflake className="absolute -bottom-4 -left-4 h-16 w-16 rotate-45 text-blue-100" />
                     </div>
                     <Button
                       variant="secondary"
                       size="lg"
-                      className="gap-2 bg-white/20 text-white backdrop-blur-sm hover:bg-white/30"
+                      className="gap-2 bg-accent text-foreground backdrop-blur-sm hover:opacity-80"
                     >
                       <Mail className="h-5 w-5" />
                       Reenviar E-mail

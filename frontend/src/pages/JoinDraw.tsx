@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
@@ -23,14 +23,17 @@ import {
 import Container from "components/Container";
 
 interface ParticipantsResponse {
-  participants: { name: string }[];
+  participants: { name: string; hasJoined: boolean }[];
 }
 
 export default function JoinDraw() {
   const { link } = useParams();
+  const navigate = useNavigate();
   const [selectedName, setSelectedName] = useState("");
   const [email, setEmail] = useState("");
-  const [participants, setParticipants] = useState<string[]>([]);
+  const [participants, setParticipants] = useState<
+    { name: string; hasJoined: boolean }[]
+  >([]);
 
   useEffect(() => {
     if (link) {
@@ -41,7 +44,7 @@ export default function JoinDraw() {
           );
 
           if (response.data && response.data.participants) {
-            setParticipants(response.data.participants.map((p) => p.name));
+            setParticipants(response.data.participants);
           } else {
             console.error("No participants found in response");
           }
@@ -61,20 +64,35 @@ export default function JoinDraw() {
     }
 
     try {
-      const response = await axiosInstance.post<ParticipantsResponse>(
-        `/api/draws/${link}/participate`,
-        {
-          name: selectedName,
-          email: email,
-          link: link,
-        },
-      );
+      const response = await axiosInstance.post<{
+        message: string;
+        link?: string;
+        email?: string;
+      }>(`/api/draws/${link}/participate`, {
+        name: selectedName,
+        email,
+      });
 
-      if (response.status === 200) {
-        console.log("Você entrou no sorteio com sucesso");
+      if (response.data.message === "Already joined") {
+        if (
+          window.confirm(
+            "Você já está registrado. Deseja reenviar o link para o email cadastrado?",
+          )
+        ) {
+          await axiosInstance.post(`/api/draws/${link}/resend-email`, {
+            name: selectedName,
+          });
+          alert("Link reenviado para o email cadastrado.");
+        }
+      } else if (response.data.message === "Joined successfully") {
+        alert("Registrado com sucesso!");
+        if (response.data.link) {
+          navigate(response.data.link);
+        }
       }
     } catch (error) {
-      console.error("Erro ao entrar no sorteio", error);
+      console.error("Erro ao tentar registrar", error);
+      alert("Ocorreu um erro ao tentar registrar. Por favor, tente novamente.");
     }
   };
 
@@ -113,9 +131,13 @@ export default function JoinDraw() {
                     <SelectValue placeholder="Selecione seu nome" />
                   </SelectTrigger>
                   <SelectContent>
-                    {participants.map((name) => (
-                      <SelectItem key={name} value={name}>
-                        {name}
+                    {participants.map((participant) => (
+                      <SelectItem
+                        key={participant.name}
+                        value={participant.name}
+                      >
+                        {participant.name}{" "}
+                        {participant.hasJoined ? "(Já registrado)" : ""}
                       </SelectItem>
                     ))}
                   </SelectContent>
