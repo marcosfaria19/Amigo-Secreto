@@ -28,6 +28,7 @@ import {
 } from "components/ui/card";
 import { Badge } from "components/ui/badge";
 import Container from "components/Container";
+import { toast } from "sonner";
 
 interface Step {
   title: string;
@@ -122,7 +123,6 @@ export default function CreateDraw() {
       setDrawId(data.link);
       setDrawLink(`${window.location.origin}/draw/${data.link}`);
 
-      // Create a more festive confetti effect
       const duration = 3 * 1000;
       const end = Date.now() + duration;
 
@@ -354,7 +354,7 @@ export default function CreateDraw() {
                       </div>
                       <div className="relative flex justify-center text-xs">
                         <span className="bg-white px-2 text-muted-foreground">
-                          ou continue com
+                          ou se preferir
                         </span>
                       </div>
                     </div>
@@ -394,7 +394,9 @@ export default function CreateDraw() {
                         className="absolute right-2 top-2 z-50 text-foreground hover:opacity-60 sm:top-3"
                         onClick={() => {
                           navigator.clipboard.writeText(drawLink || "");
-                          // You might want to add a toast notification here
+                          toast.success(
+                            "Link copiado para a área de transferência!",
+                          );
                         }}
                       >
                         <Copy className="h-4 w-4" />

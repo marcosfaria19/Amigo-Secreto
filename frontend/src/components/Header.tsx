@@ -9,7 +9,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full select-none border-b bg-white/80 p-3 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between">
+      <div className="container mx-auto flex items-center justify-between">
         <Link
           to="/home"
           className="flex items-center gap-2 text-lg font-semibold text-gray-800 transition-transform hover:scale-105"

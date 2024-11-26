@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Gift, Mail, Sparkles } from "lucide-react";
+import { Gift, Sparkles } from "lucide-react";
 import axiosInstance from "services/axios";
 import {
   Card,
