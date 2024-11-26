@@ -9,7 +9,7 @@ const AppRoutes = () => {
       <Route path="/home" element={<CreateDraw />} />
       <Route path="/draw/:link" element={<JoinDraw />} />
       <Route path="/result" element={<DrawResult />} />
-      {/*       <Route path="*" element={<Navigate to="/home" />} /> */}
+      <Route path="*" element={<Navigate to="/home" />} />
     </Routes>
   );
 };

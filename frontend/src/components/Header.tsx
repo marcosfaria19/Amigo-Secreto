@@ -8,19 +8,19 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="w-full select-none rounded-b-2xl border-b bg-white p-4 shadow-sm">
-      <div className="mx-auto flex max-w-5xl items-center justify-between">
+    <header className="sticky top-0 z-50 w-full select-none border-b bg-white/80 p-3 backdrop-blur-sm">
+      <div className="mx-auto flex max-w-7xl items-center justify-between">
         <Link
           to="/home"
           className="flex items-center gap-2 text-lg font-semibold text-gray-800 transition-transform hover:scale-105"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-pink-500">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
             <Gift className="h-6 w-6 text-white" />
           </div>
           <span className="hidden sm:inline">Tirou quem?</span>
         </Link>
 
-        <div className="flex items-center">
+        <div className="flex items-center gap-4">
           <Button variant="ghost" className="hidden sm:inline-flex">
             Entrar
           </Button>

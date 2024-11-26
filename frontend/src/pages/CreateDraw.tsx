@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
 import { Textarea } from "components/ui/textarea";
@@ -9,12 +9,25 @@ import {
   X,
   Users,
   MessageCircle,
-  Sparkles,
   Mail,
+  PartyPopper,
+  Snowflake,
+  Copy,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import axiosInstance from "services/axios";
 import { FcGoogle } from "react-icons/fc";
+import { Avatar, AvatarFallback, AvatarImage } from "components/ui/avatar";
+import { Progress } from "components/ui/progress";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "components/ui/card";
+import { Badge } from "components/ui/badge";
+import Container from "components/Container";
 
 interface Step {
   title: string;
@@ -26,22 +39,22 @@ const steps: Step[] = [
   {
     title: "Organize seu Amigo Secreto",
     subtitle: "Comece com o seu nome",
-    icon: <Gift className="h-8 w-8 text-pink-500" />,
+    icon: <Gift className="h-8 w-8 text-rose-500" />,
   },
   {
     title: "Adicione os participantes",
     subtitle: "Digite o nome de cada pessoa",
-    icon: <Users className="h-8 w-8 text-blue-500" />,
+    icon: <Users className="h-8 w-8 text-violet-500" />,
   },
   {
     title: "Mensagem do grupo",
     subtitle: "Adicione uma descrição para o sorteio",
-    icon: <MessageCircle className="h-8 w-8 text-green-500" />,
+    icon: <MessageCircle className="h-8 w-8 text-emerald-500" />,
   },
   {
     title: "Autenticação",
     subtitle: "Registre seu email ou entre com o Google",
-    icon: <Mail className="h-8 w-8 text-purple-500" />,
+    icon: <Mail className="h-8 w-8 text-amber-500" />,
   },
 ];
 
@@ -54,6 +67,11 @@ export default function CreateDraw() {
   const [drawId, setDrawId] = useState<string | null>(null);
   const [drawLink, setDrawLink] = useState<string | null>(null);
   const [email, setEmail] = useState("");
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    setProgress(((currentStep + 1) / steps.length) * 100);
+  }, [currentStep]);
 
   const handleAddParticipant = () => {
     if (
@@ -103,11 +121,33 @@ export default function CreateDraw() {
       const data = response.data;
       setDrawId(data.link);
       setDrawLink(`${window.location.origin}/draw/${data.link}`);
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-      });
+
+      // Create a more festive confetti effect
+      const duration = 3 * 1000;
+      const end = Date.now() + duration;
+
+      const colors = ["#FF0080", "#7928CA", "#0070F3"];
+
+      (function frame() {
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.8 },
+          colors: colors,
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.8 },
+          colors: colors,
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      })();
     } catch (error) {
       console.error("Erro ao criar o sorteio:", error);
     }
@@ -134,33 +174,32 @@ export default function CreateDraw() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 p-4">
-      <main className="mx-auto max-w-4xl">
+    <Container className="bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-pink-100 via-violet-100 to-blue-100 py-12">
+      <div className="mx-auto max-w-4xl lg:min-w-[768px]">
         <motion.div
-          className="mb-8 flex flex-wrap justify-center gap-4"
+          className="mb-12 flex flex-wrap justify-center gap-4 sm:gap-8"
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
           {steps.map((step, index) => (
-            <div key={index} className="flex flex-col items-center">
-              <motion.div
-                className={`flex h-12 w-12 items-center justify-center rounded-full sm:h-16 sm:w-16 ${
-                  index <= currentStep ? "bg-white shadow-lg" : "bg-gray-200"
-                }`}
-                whileHover={{ scale: 1.1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              >
-                {step.icon}
-              </motion.div>
-              <div
-                className={`mt-2 h-1 w-16 sm:w-24 ${
-                  index < currentStep + 1 ? "bg-blue-500" : "bg-gray-200"
-                }`}
-              />
-            </div>
+            <motion.div
+              key={index}
+              className={`flex h-16 w-16 items-center justify-center rounded-2xl sm:h-20 sm:w-20 ${
+                index <= currentStep ? "bg-white shadow-xl" : "bg-gray-200"
+              }`}
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            >
+              {step.icon}
+            </motion.div>
           ))}
         </motion.div>
+
+        <Progress
+          value={progress}
+          className="mb-8 h-3 rounded-full bg-gray-100/50"
+        />
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -169,136 +208,229 @@ export default function CreateDraw() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="rounded-2xl bg-white p-4 shadow-xl sm:p-8"
           >
-            <h2 className="mb-2 text-2xl font-bold text-gray-800 sm:text-3xl">
-              {steps[currentStep].title}
-            </h2>
-            <p className="mb-6 text-sm text-gray-600 sm:text-base">
-              {steps[currentStep].subtitle}
-            </p>
-
-            {currentStep === 0 && (
-              <Input
-                placeholder="Qual é o seu nome?"
-                value={organizerName}
-                onChange={(e) => setOrganizerName(e.target.value)}
-                className="text-base sm:text-lg"
-              />
-            )}
-
-            {currentStep === 1 && (
-              <div className="space-y-4">
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <Input
-                    placeholder="Nome do participante"
-                    value={newParticipant}
-                    onChange={(e) => setNewParticipant(e.target.value)}
-                    onKeyPress={(e) =>
-                      e.key === "Enter" && handleAddParticipant()
-                    }
-                  />
-                  <Button
-                    onClick={handleAddParticipant}
-                    className="w-full sm:w-auto"
+            <Card className="overflow-hidden border-none bg-white/80 backdrop-blur-sm">
+              <CardHeader className="space-y-1 pb-4">
+                <motion.div
+                  initial={{ x: -20 }}
+                  animate={{ x: 0 }}
+                  className="flex items-center gap-3"
+                >
+                  {steps[currentStep].icon}
+                  <div>
+                    <CardTitle className="text-2xl font-bold sm:text-3xl">
+                      {steps[currentStep].title}
+                    </CardTitle>
+                    <CardDescription className="text-base sm:text-lg">
+                      {steps[currentStep].subtitle}
+                    </CardDescription>
+                  </div>
+                </motion.div>
+              </CardHeader>
+              <CardContent className="space-y-6 pb-6">
+                {currentStep === 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                   >
-                    Adicionar
-                  </Button>
-                </div>
-                <ul className="max-h-60 space-y-2 overflow-y-auto">
-                  {participants.map((participant, index) => (
-                    <motion.li
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      key={index}
-                      className="flex items-center justify-between rounded-lg bg-gray-50 p-3"
+                    <Input
+                      placeholder="Qual é o seu nome?"
+                      value={organizerName}
+                      maxLength={20}
+                      onChange={(e) => setOrganizerName(e.target.value)}
+                      className="h-12 text-base sm:h-14 sm:text-lg"
+                    />
+                  </motion.div>
+                )}
+
+                {currentStep === 1 && (
+                  <div className="space-y-6">
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <Input
+                        placeholder="Nome do participante"
+                        value={newParticipant}
+                        maxLength={20}
+                        onChange={(e) => setNewParticipant(e.target.value)}
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && handleAddParticipant()
+                        }
+                        className="h-12 flex-grow text-base sm:text-lg"
+                      />
+                      <Button
+                        onClick={handleAddParticipant}
+                        variant="default"
+                        className="h-12 gap-2"
+                      >
+                        <Users className="h-4 w-4" />
+                        <span className="hidden sm:inline">Adicionar</span>
+                        <span className="sm:hidden">Add</span>
+                      </Button>
+                    </div>
+                    <motion.div layout className="grid gap-3 sm:grid-cols-2">
+                      <AnimatePresence>
+                        {participants.map((participant, index) => (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            key={index}
+                            className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 p-4 transition-all hover:shadow-lg"
+                          >
+                            <div className="flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-3">
+                                <Avatar className="h-10 w-10 border-2 border-white shadow-sm sm:h-12 sm:w-12">
+                                  <AvatarImage
+                                    src={`https://api.dicebear.com/6.x/fun-emoji/svg?seed=${participant}`}
+                                  />
+                                  <AvatarFallback>
+                                    {participant[0].toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <p className="text-sm font-medium sm:text-base">
+                                    {participant}
+                                  </p>
+                                  <p className="text-xs text-gray-500 sm:text-sm">
+                                    Participante {index + 1}
+                                  </p>
+                                </div>
+                              </div>
+                              {!(
+                                index === 0 && participant === organizerName
+                              ) && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleRemoveParticipant(index)}
+                                  className="opacity-100 transition-opacity group-hover:opacity-100 sm:opacity-0"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                            {index === 0 && participant === organizerName && (
+                              <Badge className="absolute right-2 top-2 text-xs">
+                                Organizador
+                              </Badge>
+                            )}
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </motion.div>
+                  </div>
+                )}
+
+                {currentStep === 2 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <Textarea
+                      placeholder="Escreva uma mensagem para o grupo..."
+                      value={description}
+                      maxLength={400}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className="min-h-[120px] resize-none text-base sm:min-h-[120px] sm:text-lg"
+                    />
+                  </motion.div>
+                )}
+
+                {currentStep === 3 && !drawId && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-4"
+                  >
+                    <Input
+                      type="email"
+                      placeholder="Seu email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="h-12 text-base sm:text-lg"
+                    />
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs">
+                        <span className="bg-white px-2 text-muted-foreground">
+                          ou continue com
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={handleGoogleLogin}
+                      className="relative h-12 w-full overflow-hidden text-sm transition-all"
+                      variant="outline"
                     >
-                      <span>{participant}</span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 transition-opacity hover:opacity-100" />
+                      <FcGoogle className="mr-2 h-5 w-5" />
+                      Entrar com Google
+                    </Button>
+                  </motion.div>
+                )}
+
+                {currentStep === 3 && drawId ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 p-6 text-center text-white sm:p-8"
+                  >
+                    <div className="absolute inset-0 opacity-10" />
+                    <PartyPopper className="mx-auto mb-4 h-12 w-12 sm:h-16 sm:w-16" />
+                    <h3 className="mb-2 text-2xl font-bold sm:text-3xl">
+                      Sorteio Criado!
+                    </h3>
+                    <p className="mb-6 text-base text-white/90 sm:text-lg">
+                      Compartilhe o link com todos os participantes:
+                    </p>
+                    <div className="relative mb-6 overflow-hidden rounded-lg bg-white/10 p-4 backdrop-blur-sm">
+                      <p className="break-all text-sm font-medium sm:text-lg">
+                        {drawLink}
+                      </p>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleRemoveParticipant(index)}
-                        disabled={index === 0 && participant === organizerName}
+                        className="absolute right-2 top-2 z-50 text-white hover:bg-white/20 sm:top-3"
+                        onClick={() => {
+                          navigator.clipboard.writeText(drawLink || "");
+                          // You might want to add a toast notification here
+                        }}
                       >
-                        <X
-                          className={`h-4 w-4 ${index === 0 && participant === organizerName ? "invisible" : "visible"}`}
-                        />
+                        <Copy className="h-4 w-4" />
                       </Button>
-                    </motion.li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {currentStep === 2 && (
-              <Textarea
-                placeholder="Escreva uma mensagem para o grupo..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="min-h-[150px]"
-              />
-            )}
-
-            {currentStep === 3 && !drawId && (
-              <div className="space-y-4">
-                <Input
-                  type="email"
-                  placeholder="Seu email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="text-base sm:text-lg"
-                />
-                <Button
-                  onClick={handleGoogleLogin}
-                  className="w-full"
-                  variant="outline"
-                >
-                  <FcGoogle className="mr-2 h-4 w-4" />
-                  Entrar com Google
-                </Button>
-              </div>
-            )}
-
-            {currentStep === 3 && drawId ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mt-6 rounded-xl bg-gradient-to-r from-pink-100 to-blue-100 p-4 text-center sm:p-6"
-              >
-                <Sparkles className="mx-auto mb-4 h-10 w-10 text-yellow-500 sm:h-12 sm:w-12" />
-                <h3 className="mb-2 text-xl font-bold text-gray-800 sm:text-2xl">
-                  Sorteio Criado!
-                </h3>
-                <p className="mb-4 text-sm text-gray-600 sm:text-base">
-                  O sorteio foi criado com sucesso. Compartilhe o link com os
-                  participantes:
-                </p>
-                <p className="break-all text-sm text-blue-600 sm:text-base">
-                  {drawLink}
-                </p>
-                <Button variant="outline" className="mt-2">
-                  Reenviar E-mail
-                </Button>
-              </motion.div>
-            ) : (
-              <Button
-                className="mt-6 w-full"
-                size="lg"
-                onClick={handleNext}
-                disabled={!isStepValid()}
-              >
-                <span>
-                  {currentStep === steps.length - 1
-                    ? "Criar sorteio"
-                    : "Continuar"}
-                </span>
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            )}
+                      <Snowflake className="absolute -right-4 -top-4 h-16 w-16 rotate-12 text-white/10" />
+                    </div>
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      className="gap-2 bg-white/20 text-white backdrop-blur-sm hover:bg-white/30"
+                    >
+                      <Mail className="h-5 w-5" />
+                      Reenviar E-mail
+                    </Button>
+                  </motion.div>
+                ) : (
+                  <Button
+                    className="mt-6 h-12 w-full gap-2"
+                    variant="default"
+                    size="lg"
+                    onClick={handleNext}
+                    disabled={!isStepValid()}
+                  >
+                    <span>
+                      {currentStep === steps.length - 1
+                        ? "Criar sorteio"
+                        : "Continuar"}
+                    </span>
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
           </motion.div>
         </AnimatePresence>
-      </main>
-    </div>
+      </div>
+    </Container>
   );
 }
