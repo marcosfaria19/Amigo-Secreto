@@ -20,7 +20,16 @@ import {
   CardHeader,
   CardTitle,
 } from "components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "components/ui/dialog";
 import Container from "components/Container";
+import { toast } from "sonner";
 
 interface ParticipantsResponse {
   participants: { name: string; hasJoined: boolean }[];
@@ -35,6 +44,8 @@ export default function JoinDraw() {
     { name: string; hasJoined: boolean }[]
   >([]);
 
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   useEffect(() => {
     if (link) {
       const fetchParticipants = async () => {
@@ -46,10 +57,10 @@ export default function JoinDraw() {
           if (response.data && response.data.participants) {
             setParticipants(response.data.participants);
           } else {
-            console.error("No participants found in response");
+            toast.error("Nenhum participante encontrado.");
           }
         } catch (error) {
-          console.error("Failed to fetch participants", error);
+          toast.error("Falha ao buscar participantes.");
         }
       };
 
@@ -59,7 +70,8 @@ export default function JoinDraw() {
 
   const handleJoin = async () => {
     if (!selectedName || !email) {
-      alert("Por favor, selecione seu nome e insira seu email.");
+      toast.error("Por favor, selecione seu nome e insira seu email.");
+
       return;
     }
 
@@ -74,25 +86,31 @@ export default function JoinDraw() {
       });
 
       if (response.data.message === "Already joined") {
-        if (
-          window.confirm(
-            "Você já está registrado. Deseja reenviar o link para o email cadastrado?",
-          )
-        ) {
-          await axiosInstance.post(`/api/draws/${link}/resend-email`, {
-            name: selectedName,
-          });
-          alert("Link reenviado para o email cadastrado.");
-        }
+        setIsDialogOpen(true);
       } else if (response.data.message === "Joined successfully") {
-        alert("Registrado com sucesso!");
+        toast.success("Registrado com sucesso!");
+
         if (response.data.link) {
-          navigate(response.data.link);
+          setTimeout(() => navigate(response.data.link!), 500);
         }
       }
     } catch (error) {
-      console.error("Erro ao tentar registrar", error);
-      alert("Ocorreu um erro ao tentar registrar. Por favor, tente novamente.");
+      toast.error(
+        "Ocorreu um erro ao tentar registrar. Por favor, tente novamente.",
+      );
+    }
+  };
+
+  const handleResendEmail = async () => {
+    try {
+      await axiosInstance.post(`/api/draws/${link}/resend-email`, {
+        name: selectedName,
+      });
+      toast.success("Link reenviado para o email cadastrado.");
+
+      setIsDialogOpen(false);
+    } catch (error) {
+      toast.error("Falha ao reenviar o email. Por favor, tente novamente.");
     }
   };
 
@@ -175,6 +193,24 @@ export default function JoinDraw() {
           </Card>
         </motion.div>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Participante já registrado</DialogTitle>
+            <DialogDescription>
+              Você já está registrado neste sorteio. Deseja reenviar o link para
+              o email cadastrado?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleResendEmail}>Reenviar Email</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Container>
   );
 }

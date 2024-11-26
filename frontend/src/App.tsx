@@ -3,6 +3,7 @@ import "./App.css";
 import AppRoutes from "routes/Routes";
 import { Header } from "components/Header";
 import { Footer } from "components/Footer";
+import { Toaster } from "components/ui/sonner";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Header />
       <AppRoutes />
       <Footer />
+      <Toaster position="bottom-right" richColors />
     </Router>
   );
 }
