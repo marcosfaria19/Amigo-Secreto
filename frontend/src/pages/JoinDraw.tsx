@@ -184,6 +184,7 @@ export default function JoinDraw() {
               <Button
                 className="relative h-12 w-full overflow-hidden text-sm transition-all"
                 variant="outline"
+                disabled
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 transition-opacity hover:opacity-100" />
                 <FcGoogle className="h-5 w-5" />

@@ -3,7 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 
-const authRoutes = require("./routes/authRoutes");
 const drawRoutes = require("./routes/drawRoutes");
 
 const app = express();
@@ -24,7 +23,6 @@ mongoose
   .catch((err) => console.error("Database connection error:", err));
 
 // Routes
-app.use("/api/auth", authRoutes);
 app.use("/api/draws", drawRoutes);
 
 // Start Server
