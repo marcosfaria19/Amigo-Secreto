@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 
-const drawRoutes = require("./routes/drawRoutes");
+const drawRoutes = require("./src/routes/drawRoutes");
 
 const app = express();
 
@@ -16,8 +16,8 @@ mongoose
   .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    tlsInsecure:true,
-    tls:true,
+    tlsInsecure: true,
+    tls: true,
   })
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.error("Database connection error:", err));
